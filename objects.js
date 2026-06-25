@@ -166,3 +166,170 @@ const user = {
 };
 
 user.sayHello();
+
+
+// problems on objects
+
+// Flatten
+
+function flatten(obj, parent = "", result = {}) {
+
+    for (let key in obj) {
+
+        let newKey = parent ? parent + "." + key : key;
+
+        if (typeof obj[key] === "object" && obj[key] !== null) {
+            flatten(obj[key], newKey, result);
+        } else {
+            result[newKey] = obj[key];
+        }
+    }
+
+    return result;
+}
+
+console.log(
+    flatten({ a: { b: { c: 1 } } })
+);
+
+//Unfaltten
+
+function unflatten(obj) {
+
+    let result = {};
+
+    for (let key in obj) {
+
+        let parts = key.split(".");
+        let current = result;
+
+        for (let i = 0; i < parts.length - 1; i++) {
+
+            if (!current[parts[i]]) {
+                current[parts[i]] = {};
+            }
+
+            current = current[parts[i]];
+        }
+
+        current[parts[parts.length - 1]] = obj[key];
+    }
+
+    return result;
+}
+
+console.log(
+    unflatten({ "a.b.c": 1 })
+);
+
+// Deep diff two objects
+
+function deepDiff(obj1, obj2) {
+
+    let result = {};
+
+    for (let key in obj2) {
+
+        if (!(key in obj1)) {
+
+            result[key] = {
+                added: obj2[key]
+            };
+
+        } else if (
+            typeof obj2[key] === "object" &&
+            obj2[key] !== null
+        ) {
+
+            let nestedDiff = deepDiff(
+                obj1[key],
+                obj2[key]
+            );
+
+            if (Object.keys(nestedDiff).length > 0) {
+                result[key] = nestedDiff;
+            }
+
+        } else if (obj1[key] !== obj2[key]) {
+
+            result[key] = {
+                from: obj1[key],
+                to: obj2[key]
+            };
+
+        }
+    }
+
+    return result;
+}
+    const firstObject = {
+    x: 1,
+    y: {
+        z: 2
+    }
+};
+
+const secondObject = {
+    x: 1,
+    y: {
+        z: 3
+    },
+    w: 4
+};
+
+const diffResult = deepDiff(firstObject, secondObject);
+
+console.log(JSON.stringify(diffResult, null, 2));
+
+// Deep Clone without Objects
+
+function deepClone(obj, map = new WeakMap()) {
+
+    if (obj === null || typeof obj !== "object") {
+        return obj;
+    }
+
+    if (map.has(obj)) {
+        return map.get(obj);
+    }
+
+    let clone;
+
+    if (obj instanceof Date) {
+        return new Date(obj);
+    }
+
+    if (obj instanceof Set) {
+        return new Set(obj);
+    }
+
+    if (Array.isArray(obj)) {
+        clone = [];
+    } else {
+        clone = {};
+    }
+
+    map.set(obj, clone);
+
+    for (let key in obj) {
+        clone[key] = deepClone(obj[key], map);
+    }
+
+    return clone;
+}
+
+const originalObj = {
+    a: 1,
+    b: {
+        c: new Date(),
+        d: new Set([1, 2])
+    },
+    circular: null
+};
+
+originalObj.circular = originalObj;
+
+const clonedObj = deepClone(originalObj);
+
+console.log(clonedObj);
+console.log(clonedObj.circular === clonedObj);
