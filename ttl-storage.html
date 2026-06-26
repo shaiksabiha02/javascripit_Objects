@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LocalStorage with TTL</title>
+  <style>
+    /*body {
+      font-family: Arial;
+      text-align: center;
+      margin-top: 50px;
+    }*/
+
+    h1 {
+      font-size: 60px;
+      color: #2c3e50;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      margin: 10px;
+    }
+
+    body { font-family: Arial; text-align: center; margin-top: 40px; }
+    button { margin: 5px; padding: 10px; cursor: pointer; }
+    .box { margin-top: 20px; }
+  
+  </style>
+</head>
+<body>
+
+  <h2>LocalStorage with TTL (Expiry Demo)</h2>
+
+  <button onclick="saveToken()">Set Token (60 sec)</button>
+  <button onclick="checkToken()">Get Token</button>
+
+  <p id="output"></p>
+
+  <script>
+    class StorageWithTTL {
+
+      setItem(key, value, ttl) {
+        const now = Date.now();
+
+        const item = {
+          value: value,
+          expiry: now + ttl
+        };
+
+        localStorage.setItem(key, JSON.stringify(item));
+      }
+
+      getItem(key) {
+        const itemStr = localStorage.getItem(key);
+
+        if (!itemStr) {
+          return null;
+        }
+
+        const item = JSON.parse(itemStr);
+        const now = Date.now();
+
+        // check expiry
+        if (now > item.expiry) {
+          localStorage.removeItem(key);
+          return null;
+        }
+
+        return item.value;
+      }
+    }
+
+    const storage = new StorageWithTTL();
+
+    function saveToken() {
+      storage.setItem("token", "abc123", 60000); // 60 seconds
+      document.getElementById("output").innerText =
+        "Token saved for 60 seconds ✔";
+    }
+
+    function checkToken() {
+      const value = storage.getItem("token");
+
+      if (value) {
+        document.getElementById("output").innerText =
+          "Token: " + value;
+      } else {
+        document.getElementById("output").innerText =
+          "Token expired or not found ❌";
+      }
+    }
+  </script>
+
+    <h2>Cross Tab Counter Sync</h2>
+
+  <h1 id="count">0</h1>
+
+  <button onclick="increment()">Increment (Tab A or B)</button>
+  <button onclick="resetCounter()">Reset</button>
+
+  <script>
+    const countEl = document.getElementById("count");
+
+    // Load initial value when page opens
+    function loadCounter() {
+      const value = localStorage.getItem("counter");
+      countEl.innerText = value ? value : 0;
+    }
+
+    loadCounter();
+
+    // Increment counter (works in any tab)
+    function increment() {
+      let current = Number(localStorage.getItem("counter")) || 0;
+      current++;
+
+      localStorage.setItem("counter", current);
+
+      // update same tab instantly
+      countEl.innerText = current;
+    }
+
+    // Reset counter
+    function resetCounter() {
+      localStorage.setItem("counter", 0);
+      countEl.innerText = 0;
+    }
+
+    // Listen for changes from OTHER tabs
+    window.addEventListener("storage", (event) => {
+      if (event.key === "counter") {
+        countEl.innerText = event.newValue || 0;
+      }
+    });
+  </script>
+
+</body>
+</html>

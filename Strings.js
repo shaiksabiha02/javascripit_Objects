@@ -75,3 +75,29 @@ console.log(
         }
     )
 );
+
+//
+
+function groupAnagrams(words) {
+
+    let map = new Map();
+
+    for (let word of words) {
+        let key = word.split('').sort().join('');
+
+        
+        if (!map.has(key)) {
+            map.set(key, []);
+        }
+
+    
+        map.get(key).push(word);
+    }
+
+    
+    return Array.from(map.values());
+}
+
+let result = groupAnagrams(['eat', 'tea', 'tan', 'ate', 'nat', 'bat']);
+
+console.log(result);
