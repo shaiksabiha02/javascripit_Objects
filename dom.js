@@ -99,3 +99,34 @@ document.body.appendChild(l);
 console.log(l);
 
 k.remove(); // it removes an element 
+// Dom Traversing
+// Parent Element
+let m = document.getElementById("box");
+m.parentElement.style.backgroundColor = "orange"; // parent means goes up
+// CHILD
+let n = document.getElementById("box");
+console.log(n.children);
+// children access them through the index value
+console.log(n.children[0]);
+// first element child
+let o = document.getElementById("container");
+console.log(o.firstElementChild);
+o.firstElementChild.style.color="red";
+let p = document.getElementById("box");
+console.log(p.firstElementChild);
+// last element
+let r = document.getElementById("container");
+console.log(r.lastElementChild);
+console.log(r.nextElementSibling);
+r.nextElementSibling.style.color = "maroon";
+console.log(p.previousElementSibling);
+p.previousElementSibling.style.color="balck";
+
+// events mouse over
+let eve = document.getElementById("eve");
+eve.addEventListener("mouseover",function(){
+    eve.style.backgroundColor="red"
+});
+eve.addEventListener("mouseout",function(){
+    eve.style.backgroundColor="green"
+});
